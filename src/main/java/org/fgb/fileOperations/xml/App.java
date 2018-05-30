@@ -95,9 +95,9 @@ public class App extends JFrame {
      * Build the window.
      */
     private void buildFrame(final Configuration configuration) {
-	setTitle("XML Utilities");
-	setName("UtilitiesJFrame");
-
+	this.setTitle("XML Utilities");
+	this.setName("UtilitiesJFrame");
+	final StringBuilder msg = new StringBuilder();
 	final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
 	final Dimension screenSize = defaultToolkit.getScreenSize();
 
@@ -145,6 +145,13 @@ public class App extends JFrame {
 	fileChooser.setMultiSelectionEnabled(true);
 	fileChooser.setControlButtonsAreShown(false);
 	File file = new File(configuration.getStartingDirectory());
+	if (_logger.isLoggable(Level.INFO)) {
+	    msg.append("The directory \"");
+	    msg.append(file.getAbsolutePath());
+	    msg.append("\" does not exist.  Defaulting the starting directory to the user's home directory.");
+	    _logger.info(msg.toString());
+	    msg.delete(0, msg.length());
+	}
 	System.out.println(file.exists());
 	fileChooser.setCurrentDirectory(file);
 //	fileChooser.addActionListener(new SelectedFilesActionListener());

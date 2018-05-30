@@ -1,6 +1,7 @@
 Maven Commands
 --------------
 mvn exec:java -Dexec.mainClass=org.fgb.fileOperations.xml.App -Dexec.args="-c src\main\resources\configuration.json"
+mvn exec:java -Dexec.mainClass=org.fgb.fileOperations.xml.App -DjvmArgs="-Djava.util.logging=src\main\resources\logging.properties" -Dexec.args="-c src\main\resources\configuration.json"
 mvn javadoc:javadoc
 
 
