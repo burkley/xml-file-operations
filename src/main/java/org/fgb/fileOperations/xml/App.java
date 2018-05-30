@@ -41,7 +41,15 @@ import org.fgb.fileOperations.xml.utilities.Configuration;
 
 
 /**
- * Hello world!
+ * Application "XML File Operations".  This application renders a Graphical User Interface that orchestrates several
+ * useful <i>work flows</i> on an XML file or set of XML file(s).
+ * <p>
+ * Those work flows are:
+ * <ul>
+ *   <li>Pretty Print XML Instance Documents</li>
+ *   <li>Regression test XML Instance Documents</li>
+ *   <li>Validate XML Instance Documents</li>
+ * </ul>
  *
  */
 public class App extends JFrame {
