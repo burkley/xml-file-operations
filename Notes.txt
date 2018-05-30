@@ -1,0 +1,11 @@
+Maven Commands
+--------------
+mvn exec:java -Dexec.mainClass=org.fgb.fileOperations.xml.App -Dexec.args="-c src\main\resources\configuration.json"
+mvn javadoc:javadoc
+
+
+TODOs
+-----
+Validate/Pretty Print/Regression Test switch to the Results pane when no files/directories are selected.
+
+

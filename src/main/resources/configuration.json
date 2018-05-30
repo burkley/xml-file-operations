@@ -1,0 +1,21 @@
+{
+  "operations": [
+    {
+      "name": "Validate",
+      "description": "Validate XML Instance Documents",
+      "listener": "org.fgb.fileOperations.xml.listeners.ValidateListener"
+    },
+    {
+      "name": "PrettyPrint",
+      "description": "Pretty Print XML Instance Documents",
+      "listener": "org.fgb.fileOperations.xml.listeners.PrettyPrintListener"
+    },
+    {
+      "name": "RegressionTest",
+      "description": "Regression test XML Instance Documents",
+      "listener": "org.fgb.fileOperations.xml.listeners.RegressionTestListener"
+    }
+  ],
+	"acdmFilePrefix": "Acdm",
+	"startingDirectory": "C:\\Users\\FrederickBurkley\\Documents\\Development\\xml-file-operations"
+}
