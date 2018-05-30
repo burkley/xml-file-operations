@@ -69,8 +69,6 @@ public class App extends JFrame {
 //    private static final float _WINDOW_WIDTH = 0.5f;
 
     private FileSelectionPropertyChangeListener fileSelectionPCL;
-    private final Set<EventListener> listeners; // Nothing in here yet...
-    private JFrame thisFrame = null;
 
     /**
      * Default Constructor.
@@ -80,7 +78,6 @@ public class App extends JFrame {
 	super();
 	// build the gui
 	this.buildFrame(configuration);
-	this.listeners = new LinkedHashSet<EventListener>();
 
 	// add shutdown hook
 	final ShutdownHook shutdownHook = new ShutdownHook();
@@ -98,7 +95,6 @@ public class App extends JFrame {
      * Build the window.
      */
     private void buildFrame(final Configuration configuration) {
-	this.thisFrame = this;
 	setTitle("XML Utilities");
 	setName("UtilitiesJFrame");
 
@@ -148,7 +144,9 @@ public class App extends JFrame {
 	});
 	fileChooser.setMultiSelectionEnabled(true);
 	fileChooser.setControlButtonsAreShown(false);
-	fileChooser.setCurrentDirectory(new File(configuration.getStartingDirectory()));
+	File file = new File(configuration.getStartingDirectory());
+	System.out.println(file.exists());
+	fileChooser.setCurrentDirectory(file);
 //	fileChooser.addActionListener(new SelectedFilesActionListener());
 	this.fileSelectionPCL = new FileSelectionPropertyChangeListener();
 	fileChooser.addPropertyChangeListener(this.fileSelectionPCL);
