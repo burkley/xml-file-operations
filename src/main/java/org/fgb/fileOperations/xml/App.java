@@ -145,16 +145,20 @@ public class App extends JFrame {
 	fileChooser.setMultiSelectionEnabled(true);
 	fileChooser.setControlButtonsAreShown(false);
 	File file = new File(configuration.getStartingDirectory());
+	fileChooser.setCurrentDirectory(file);
+	if (!file.exists()) {
 	if (_logger.isLoggable(Level.INFO)) {
-	    msg.append("The directory \"");
+	    msg.append("The configuration file (");
+	    msg.append(configuration.getConfigurationFilePath());
+	    msg.append(") specifies a starting directory for this application.  This starting directory \"");
 	    msg.append(file.getAbsolutePath());
-	    msg.append("\" does not exist.  Defaulting the starting directory to the user's home directory.");
+	    msg.append("\" does not exist.  Defaulting the starting directory to \"");
+	    msg.append(fileChooser.getCurrentDirectory());
+	    msg.append("\".");
 	    _logger.info(msg.toString());
 	    msg.delete(0, msg.length());
 	}
-	System.out.println(file.exists());
-	fileChooser.setCurrentDirectory(file);
-//	fileChooser.addActionListener(new SelectedFilesActionListener());
+	}
 	this.fileSelectionPCL = new FileSelectionPropertyChangeListener();
 	fileChooser.addPropertyChangeListener(this.fileSelectionPCL);
 	tabbedPane.addTab("FileChoser", fileChooser);

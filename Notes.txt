@@ -7,6 +7,10 @@ mvn javadoc:javadoc
 
 TODOs
 -----
-Validate/Pretty Print/Regression Test switch to the Results pane when no files/directories are selected.
+*) Validate/Pretty Print/Regression Test switch to the Results pane when no files/directories are selected.
+*) The JSON parser does not like the form of this on Windows:  "startingDirectory": "C:\Users\FrederickBurkley\git\xml-file-operations"
+   It prefers   "startingDirectory": "C:\\Users\\FrederickBurkley\\git\\xml-file-operations" instead.  Investigate when time allows.
+
+
 
 

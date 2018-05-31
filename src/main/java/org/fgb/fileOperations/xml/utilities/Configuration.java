@@ -34,6 +34,10 @@ public class Configuration {
      */
     private final LinkedHashMap<String,HashMap<String,String>> operations;
     /**
+     * A copy of the configuration file path for debugging purposes.
+     */
+    private final String configurationFilePath;
+    /**
      * The starting directory for this application.
      */
     private final String startingDirectory;
@@ -48,8 +52,8 @@ public class Configuration {
     public Configuration(final String path) throws IOException {
 	this.operations = new LinkedHashMap<String, HashMap<String, String>>();
 	File file = new File(path);
-	FileInputStream fis;
-	fis = new FileInputStream(file);
+	this.configurationFilePath = file.getAbsolutePath();
+	FileInputStream fis = new FileInputStream(file);
 
 	JsonReader jsonReader = Json.createReader(fis);
 	JsonObject jsonObject = jsonReader.readObject();
@@ -126,5 +130,9 @@ public class Configuration {
 
     public String getStartingDirectory() {
         return this.startingDirectory;
+    }
+    
+    public String getConfigurationFilePath() {
+	return this.configurationFilePath;
     }
 }

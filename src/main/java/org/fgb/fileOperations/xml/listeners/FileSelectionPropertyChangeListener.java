@@ -28,7 +28,6 @@ public class FileSelectionPropertyChangeListener implements PropertyChangeListen
 	this.selectedFiles.clear();
 	Object oldValue = event.getOldValue();
 	Object newValue = event.getNewValue();
-	System.out.println(_className + "\n\n");
 	System.out.println(_className + ".propertyChange(): event.getPropertyName() = " + event.getPropertyName());
 //	System.out.println(_className + ".propertyChange(): event.getOldValue() = " + oldValue);
 	if (oldValue != null) {
