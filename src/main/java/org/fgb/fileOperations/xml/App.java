@@ -10,8 +10,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.EventListener;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +49,7 @@ import org.fgb.fileOperations.xml.utilities.Configuration;
  *   <li>Validate XML Instance Documents</li>
  * </ul>
  *
+ * @author FrederickBurkley
  */
 public class App extends JFrame {
     /**
@@ -68,10 +67,17 @@ public class App extends JFrame {
 //    private static final float _WINDOW_HEIGHT = 0.4f;
 //    private static final float _WINDOW_WIDTH = 0.5f;
 
+    /**
+     * There is a single file selection property change listener for the application.  This listener will keep track
+     * of the files (i.e. a list of files) that are currently selected via the JFileCooser.  This list of files is
+     * made available to the various {@linkplain java.awt.event.ActionListener}s that invoke the major work flows of
+     * this application.
+     */
     private FileSelectionPropertyChangeListener fileSelectionPCL;
 
     /**
      * Default Constructor.
+     * 
      * @param configuration The configuration for the application.
      */
     public App(final Configuration configuration) {
@@ -93,13 +99,15 @@ public class App extends JFrame {
 
     /**
      * Build the window.
+     * 
+     * @param configuration The configuration for the application.
      */
     private void buildFrame(final Configuration configuration) {
 	this.setTitle("XML Utilities");
 	this.setName("UtilitiesJFrame");
 	final StringBuilder msg = new StringBuilder();
-	final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-	final Dimension screenSize = defaultToolkit.getScreenSize();
+//	final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+//	final Dimension screenSize = defaultToolkit.getScreenSize();
 
 //	final int screenWidth = screenSize.width;
 //	final int screenHeight = screenSize.height;
@@ -122,7 +130,7 @@ public class App extends JFrame {
 	JFileChooser fileChooser = new JFileChooser();
 	fileChooser.setName("UtilitiesFileChooser");
 	fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-	FileNameExtensionFilter filter = new FileNameExtensionFilter("ACDM XML File", "xml");
+//	FileNameExtensionFilter filter = new FileNameExtensionFilter("ACDM XML File", "xml");
 	fileChooser.setFileFilter(new FileFilter() {
 	    @Override
 	    public boolean accept(File file) {
@@ -147,29 +155,25 @@ public class App extends JFrame {
 	File file = new File(configuration.getStartingDirectory());
 	fileChooser.setCurrentDirectory(file);
 	if (!file.exists()) {
-	if (_logger.isLoggable(Level.INFO)) {
-	    msg.append("The configuration file (");
-	    msg.append(configuration.getConfigurationFilePath());
-	    msg.append(") specifies a starting directory for this application.  This starting directory \"");
-	    msg.append(file.getAbsolutePath());
-	    msg.append("\" does not exist.  Defaulting the starting directory to \"");
-	    msg.append(fileChooser.getCurrentDirectory());
-	    msg.append("\".");
-	    _logger.info(msg.toString());
-	    msg.delete(0, msg.length());
-	}
+	    if (_logger.isLoggable(Level.INFO)) {
+		msg.append("The configuration file (");
+		msg.append(configuration.getConfigurationFilePath());
+		msg.append(") specifies a starting directory for this application.  This starting directory \"");
+		msg.append(file.getAbsolutePath());
+		msg.append("\" does not exist.  Defaulting the starting directory to \"");
+		msg.append(fileChooser.getCurrentDirectory());
+		msg.append("\".");
+		_logger.info(msg.toString());
+		msg.delete(0, msg.length());
+	    }
 	}
 	this.fileSelectionPCL = new FileSelectionPropertyChangeListener();
 	fileChooser.addPropertyChangeListener(this.fileSelectionPCL);
 	tabbedPane.addTab("FileChoser", fileChooser);
-//	tabbedPane.addTab("Tab 1", icon, panel1, "Does nothing");
-//	tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
 	JComponent resultsPanel = new JPanel();
 	resultsPanel.setName("Results");
 	tabbedPane.addTab("Results", resultsPanel);
-//	tabbedPane.addTab("Tab 2", icon, panel2, "Does twice as much nothing");
-//	tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 	
 	this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 	this.pack();
@@ -178,6 +182,8 @@ public class App extends JFrame {
 
     /**
      * Build the toolbar.
+     * 
+     * @param configuration The configuration for the application.
      */
     private JToolBar buildToolBar(final Configuration configuration) {
 	JToolBar tb = new JToolBar ();
@@ -240,11 +246,9 @@ public class App extends JFrame {
     private JMenuBar buildMenus(final Configuration configuration) {
       JMenuBar mb = new JMenuBar();
       mb.setOpaque(true);
-
 //      JMenu help = buildHelpMenu();
       mb.add(this.buildFileMenu(configuration));
 //      mb.add(help);
-
       return mb;	
     }
 
@@ -295,15 +299,12 @@ public class App extends JFrame {
 	// Command line options
 	final Option helpOption = new Option("h", "help", false, "Recursively copy a file system, excluding all hidden files.");
 	final Option configurationFileOption = new Option("c", "configuration", true, "The path to the configuration file.  This argument is mandatory.");
-	final Option newConfigurationFileOption = new Option("n", "new-configuration", true, "The path to the configuration file.  This argument is mandatory.");
 	String configFilePath = null;
-	String newConfigFilePath = null;
 	final StringBuilder msg = new StringBuilder();
 
 	final Options options = new Options();
 	options.addOption(helpOption);
 	options.addOption(configurationFileOption);
-	options.addOption(newConfigurationFileOption);
 
 	final HelpFormatter formatter = new HelpFormatter();
 	final CommandLineParser parser = new DefaultParser();
@@ -316,9 +317,6 @@ public class App extends JFrame {
 	    }
 	    if (commandLine.hasOption("c")) {
 		configFilePath = commandLine.getOptionValue("c");
-	    }
-	    if (commandLine.hasOption("n")) {
-		newConfigFilePath = commandLine.getOptionValue("n");
 	    }
 	} catch (final ParseException pe) {
 	    _logger.log(Level.SEVERE, null, pe);
