@@ -8,6 +8,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JButton;
@@ -65,11 +66,11 @@ public class DefaultActionListener implements ActionListener {
      * </ul>
      */
     public void actionPerformed(ActionEvent event) {
-	JButton button;
+	StringBuilder msg = new StringBuilder("Unable to retrieve the list of files that may have been selected by the user.");
 	System.out.println(_className + ".actionPerformed(): event = " + event);
 	System.out.println(_className + ".actionPerformed(): event.getSource().getClass().getName() = " + event.getSource().getClass().getName());
 	if (event.getSource() instanceof JButton) {
-	    button = (JButton)event.getSource();
+	    JButton button = (JButton)event.getSource();
 	    Container topLevel = button.getTopLevelAncestor();
 	    System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName() + "  getClass().getName() = " + topLevel.getClass().getName());
 	    System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName());
@@ -105,7 +106,13 @@ public class DefaultActionListener implements ActionListener {
 		
 	    }
 	} else {
-	    
+	    if (_logger.isLoggable(Level.WARNING)) {
+		msg.append("  Received an ActionEvent, anticipating the source of the event to be a JButton.");
+		msg.append("  However the source is ");
+		msg.append(event.getSource());
+		_logger.warning(msg.toString());
+		msg.delete(0, msg.length());
+	    }
 	}
     }
 
