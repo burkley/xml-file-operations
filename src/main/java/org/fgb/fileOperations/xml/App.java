@@ -1,10 +1,12 @@
 package org.fgb.fileOperations.xml;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -14,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Box;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -24,9 +27,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
+import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -127,7 +130,25 @@ public class App extends JFrame {
 	tabbedPane.setName("TabbedPane");
 
 //	tabbedPane.addTab("Panel1", panel1);
+
+	Boolean origReadOnlyValue = UIManager.getBoolean("FileChooser.readOnly");
+	UIManager.put("FileChooser.readOnly", Boolean.TRUE);
 	JFileChooser fileChooser = new JFileChooser();
+	UIManager.put("FileChooser.readOnly", origReadOnlyValue);
+
+//	FileSystemView fsv = new FileSystemView() {
+//	    @Override
+//	    public File createNewFolder(File arg0) throws IOException {
+//		// TODO Auto-generated method stub
+//		return null;
+//	    }};
+
+	//	System.out.println(_className + ": fileChooser.getUI().getClass() = " + fileChooser.getUI().getClass());
+//	if (fileChooser.getUI() instanceof BasicFileChooserUI) {
+//	    System.out.println(_className + ": fileChooser.getUI().getClass() FGBFGBFGB ");
+//	    BasicFileChooserUI basic = (BasicFileChooserUI) fileChooser.getUI();
+//	    basic.getNewFolderAction().setEnabled(false);
+//	}
 	fileChooser.setName("UtilitiesFileChooser");
 	fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 //	FileNameExtensionFilter filter = new FileNameExtensionFilter("ACDM XML File", "xml");
@@ -169,7 +190,12 @@ public class App extends JFrame {
 	}
 	this.fileSelectionPCL = new FileSelectionPropertyChangeListener();
 	fileChooser.addPropertyChangeListener(this.fileSelectionPCL);
+	MouseListener[] mls = (MouseListener[])(fileChooser.getListeners(MouseListener.class));
+	for (int i=0; i<mls.length; i++) {
+	    System.out.println(_className + ".buildFrame(): " + mls[i].getClass().getName());
+	}
 	tabbedPane.addTab("FileChoser", fileChooser);
+//	this.disableNewFolderButton(fileChooser);
 
 	JComponent resultsPanel = new JPanel();
 	resultsPanel.setName("Results");
@@ -265,6 +291,32 @@ public class App extends JFrame {
       }});
       file.add(quitItem);
       return file;
+    }
+
+
+    /**
+     * Disable the new folder button.  This is done to prevent the user from modifying the file system.
+     * <p>
+     * This method will recursively check the <code>JButton</code>s of the <code>Container</code> argument.
+     * The button is disabled and is not rendered if it is configured as a "Create New Folder" button.
+     * 
+     * @param c The <code>Container</code> to check.
+     */
+    private void disableNewFolderButton(Container c) {
+	int len = c.getComponentCount();
+	for (int i = 0; i < len; i++) {
+	    Component comp = c.getComponent(i);
+	    if (comp instanceof JButton) {
+		JButton b = (JButton) comp;
+		Icon icon = b.getIcon();
+		if (icon != null && icon == UIManager.getIcon("FileChooser.newFolderIcon")) {
+		    b.setEnabled(false);
+		    b.setVisible(false);
+		}
+	    } else if (comp instanceof Container) {
+		this.disableNewFolderButton((Container) comp);
+	    }
+	}
     }
 
 
