@@ -124,34 +124,17 @@ public class App extends JFrame {
 	this.getContentPane().setName("UtilitiesContentFrame");
 	this.getContentPane().setLayout(new BorderLayout());
 	this.getContentPane().add(this.buildToolBar(configuration), BorderLayout.NORTH);
-	// i_iFrameListener = new IFrameListener();
 	
 	JTabbedPane tabbedPane = new JTabbedPane();
 	tabbedPane.setName("TabbedPane");
-
-//	tabbedPane.addTab("Panel1", panel1);
 
 	Boolean origReadOnlyValue = UIManager.getBoolean("FileChooser.readOnly");
 	UIManager.put("FileChooser.readOnly", Boolean.TRUE);
 	JFileChooser fileChooser = new JFileChooser();
 	UIManager.put("FileChooser.readOnly", origReadOnlyValue);
 
-//	FileSystemView fsv = new FileSystemView() {
-//	    @Override
-//	    public File createNewFolder(File arg0) throws IOException {
-//		// TODO Auto-generated method stub
-//		return null;
-//	    }};
-
-	//	System.out.println(_className + ": fileChooser.getUI().getClass() = " + fileChooser.getUI().getClass());
-//	if (fileChooser.getUI() instanceof BasicFileChooserUI) {
-//	    System.out.println(_className + ": fileChooser.getUI().getClass() FGBFGBFGB ");
-//	    BasicFileChooserUI basic = (BasicFileChooserUI) fileChooser.getUI();
-//	    basic.getNewFolderAction().setEnabled(false);
-//	}
 	fileChooser.setName("UtilitiesFileChooser");
 	fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-//	FileNameExtensionFilter filter = new FileNameExtensionFilter("ACDM XML File", "xml");
 	fileChooser.setFileFilter(new FileFilter() {
 	    @Override
 	    public boolean accept(File file) {
