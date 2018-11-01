@@ -26,8 +26,8 @@
 			<artifactId>commons-cli</artifactId>
 			<version>1.4</version>
 		</dependency>
-
 	</dependencies>
+
 	<build>
 	 <plugins>
 	   <plugin>
@@ -42,14 +42,33 @@
 	       </execution>
 	     </executions>
 	     <configuration>
+	       <executable>java</executable>
+	       <arguments>
+	         <argument>-Djava.util.logging.config.file=src/main/resources/logging.properties</argument>
+	         <argument>-classpath</argument>
+           <classpath/>
+	         <argument>org.fgb.fileOperations.xml.App</argument>
+	         <argument>-csrc/main/resources/configuration.json</argument>
+	       </arguments>
+	     </configuration>
+	     <!-- 
+	     <configuration>
 	       <mainClass>org.fgb.fileOperations.xml.App</mainClass>
+	       <systemProperties>
+	         <systemProperty>
+	           <key>-Djava.util.logging.config.file</key>
+	           <value>src/main/resources/logging.properties</value>
+	         </systemProperty>
+	       </systemProperties>
 	       <arguments>
             <argument>-csrc/main/resources/configuration.json</argument>
 	       </arguments>
 	     </configuration>
+	     -->
 	   </plugin>
 	 </plugins>
 	</build>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
