@@ -27,6 +27,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
@@ -78,15 +79,12 @@ public class App extends JFrame {
      */
     private FileSelectionPropertyChangeListener fileSelectionPCL;
 
+
     /**
      * Default Constructor.
-     * 
-     * @param configuration The configuration for the application.
      */
-    public App(final Configuration configuration) {
+    public App() {
 	super();
-	// build the gui
-	this.buildFrame(configuration);
 
 	// add shutdown hook
 	final ShutdownHook shutdownHook = new ShutdownHook();
@@ -99,6 +97,18 @@ public class App extends JFrame {
 	    }
 	});
     }
+
+
+    /**
+     * 
+     * @param configuration The configuration for the application.
+     */
+    public void createAndShowGUI(final Configuration configuration) {
+	// build the gui
+	this.buildFrame(configuration);
+	this.setVisible(true);
+    }
+
 
     /**
      * Build the window.
@@ -249,6 +259,7 @@ public class App extends JFrame {
 	return listener;
     }
 
+
     /**
      * Build the menus.
      */
@@ -363,14 +374,18 @@ public class App extends JFrame {
 	    formatter.printHelp(_className, options);
 	    System.exit(1);
 	}
-	Configuration configuration = null;
 	try {
-	    configuration = new Configuration(configFilePath);	    
+	    Configuration configuration = new Configuration(configFilePath);	    
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    App app = new App();
+		    app.createAndShowGUI(configuration);
+		}
+	    });
 	} catch (IOException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
-	final JFrame frame = new App(configuration);
-	frame.setVisible(true);
+	System.out.println(_className + ".main(): Exit main()...");
     }
 }
