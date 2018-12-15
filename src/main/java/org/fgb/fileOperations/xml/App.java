@@ -3,6 +3,8 @@ package org.fgb.fileOperations.xml;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -68,8 +70,6 @@ public class App extends JFrame {
      * JDK logger.
      */
     private static final Logger _logger = Logger.getLogger(_className);
-//    private static final float _WINDOW_HEIGHT = 0.4f;
-//    private static final float _WINDOW_WIDTH = 0.5f;
 
     /**
      * There is a single file selection property change listener for the application.  This listener will keep track
@@ -122,15 +122,6 @@ public class App extends JFrame {
 //	final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
 //	final Dimension screenSize = defaultToolkit.getScreenSize();
 
-//	final int screenWidth = screenSize.width;
-//	final int screenHeight = screenSize.height;
-//	final int windowWidth = (int) (screenWidth * _WINDOW_WIDTH);
-//	final int windowHeight = (int) (screenHeight * _WINDOW_HEIGHT);
-//	final int screenX = (screenWidth - windowWidth) / 3;
-//	final int screenY = (screenHeight - windowHeight) / 3;
-//	setBounds(screenX, screenY, windowWidth, windowHeight);
-
-//	this.setJMenuBar(this.buildMenus(configuration));
 	this.getContentPane().setName("UtilitiesContentFrame");
 	this.getContentPane().setLayout(new BorderLayout());
 	this.getContentPane().add(this.buildToolBar(configuration), BorderLayout.NORTH);
