@@ -100,22 +100,11 @@ public class App extends JFrame {
 
 
     /**
+     * Build and show the window.
      * 
      * @param configuration The configuration for the application.
      */
-    public void createAndShowGUI(final Configuration configuration) {
-	// build the gui
-	this.buildFrame(configuration);
-	this.setVisible(true);
-    }
-
-
-    /**
-     * Build the window.
-     * 
-     * @param configuration The configuration for the application.
-     */
-    private void buildFrame(final Configuration configuration) {
+    private void createAndShowGUI(final Configuration configuration) {
 	this.setTitle("XML Utilities");
 	this.setName("UtilitiesJFrame");
 	final StringBuilder msg = new StringBuilder();
@@ -187,6 +176,9 @@ public class App extends JFrame {
 	
 	this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 	this.pack();
+	this.setVisible(true);
+	
+	
     }
 
 
