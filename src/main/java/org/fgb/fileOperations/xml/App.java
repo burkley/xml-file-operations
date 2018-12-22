@@ -366,12 +366,12 @@ public class App extends JFrame {
 	    System.exit(1);
 	}
 	try {
-	    Configuration configuration = new Configuration(configFilePath);	    
+    	final Configuration configuration = new Configuration(configFilePath);	    
 	    SwingUtilities.invokeLater(new Runnable() {
-		public void run() {
-		    App app = new App();
-		    app.createAndShowGUI(configuration);
-		}
+	    	public void run() {
+	    		App app = new App();
+	    		app.createAndShowGUI(configuration);
+	    	}
 	    });
 	} catch (IOException e) {
 	    // TODO Auto-generated catch block
