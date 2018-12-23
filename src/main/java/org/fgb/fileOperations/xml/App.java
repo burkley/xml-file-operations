@@ -241,32 +241,6 @@ public class App extends JFrame {
 		return listener;
 	}
 
-	/**
-	 * Build the menus.
-	 */
-	private JMenuBar buildMenus(final Configuration configuration) {
-		JMenuBar mb = new JMenuBar();
-		mb.setOpaque(true);
-//      JMenu help = buildHelpMenu();
-		mb.add(this.buildFileMenu(configuration));
-//      mb.add(help);
-		return mb;
-	}
-
-	/**
-	 * Build the File menu.
-	 */
-	private JMenu buildFileMenu(final Configuration configuration) {
-		JMenu file = new JMenu("File");
-		JMenuItem quitItem = new JMenuItem("Quit");
-		quitItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				quit();
-			}
-		});
-		file.add(quitItem);
-		return file;
-	}
 
 	/**
 	 * Disable the new folder button. This is done to prevent the user from
