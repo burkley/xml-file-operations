@@ -25,6 +25,13 @@ public class SwingUtils {
 	 */
 	private static final Logger _logger = Logger.getLogger(_className);
 
+
+	/**
+	 * Prevent instances.
+	 */
+	private SwingUtils() {}
+
+
 	/**
 	 * Find a Swing <code>Component</code> by its name.
 	 * <p>
