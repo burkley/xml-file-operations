@@ -20,3 +20,36 @@ TODOs
 
 
 
+Swing Worker notes
+
+Can wait for SwingWorker to complete using the get() methods.
+Call publish() from the doInBackground() nmethod.
+	Because the process method is invoked asynchronously on the
+	Event Dispatch Thread multiple invocations to the publish method
+	might occur before the process method is executed. For performance
+	purposes all these invocations are coalesced into one invocation
+	with concatenated arguments.
+
+
+App.java
+Invoke a SwingWorker via one of the workflows (i.e. clicking on Validate, PrettyPrint or RegressionTest).
+When clicked:
+	TabbedPane switches from FileChooser to Results
+	The workflow buttons become inactive.
+	The cancel button becomes active.
+	
+	The SwingWorker begins to execute.  While executing:
+		Status is published (via the publish() method) while doInBackground() is execuring.
+		Done will be called automatically when doInBackground() returns.
+		
+	Three SwingWorkers, PrettyPrintSwingWorker, ValidateSwingWorker, RegressionSwingWorker.
+	Each SwingWorker can have an ActionListener to hook it up with the appropriate button.
+	
+	How to control state between App and the currently executing SwingWorker?
+	
+	
+
+
+
+
+
