@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,6 +14,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.EventListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,8 +30,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
@@ -81,6 +87,14 @@ public class App extends JFrame {
 	private FileSelectionPropertyChangeListener fileSelectionPCL;
 
 	/**
+	 * There is a single <i>results panel</i> for the application.  This is the panel
+	 * where results of the various <i>work flows</i> will be published.  The reference
+	 * to this panel is passed as an argument to the listeners that control invocation
+	 * of the work flows.
+	 */
+	private final JComponent resultsPanel = new JPanel();
+
+	/**
 	 * Default Constructor.
 	 */
 	public App() {
@@ -112,7 +126,7 @@ public class App extends JFrame {
 
 		this.getContentPane().setName("UtilitiesContentFrame");
 		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(this.buildToolBar(configuration), BorderLayout.NORTH);
+//		this.getContentPane().add(this.buildToolBar(configuration), BorderLayout.NORTH);
 
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.setName("TabbedPane");
@@ -170,15 +184,26 @@ public class App extends JFrame {
 		tabbedPane.addTab("FileChoser", fileChooser);
 //	this.disableNewFolderButton(fileChooser);
 
-		JComponent resultsPanel = new JPanel();
-		resultsPanel.setName("Results");
-		tabbedPane.addTab("Results", resultsPanel);
+		this.resultsPanel.setLayout(new BorderLayout());
+		this.resultsPanel.setName("Results");
+		this.resultsPanel.setOpaque(true); // content panes must be opaque
+		tabbedPane.addTab("Results", this.resultsPanel);
 
+		JTextArea textArea = new JTextArea();
+		textArea.setName("ResultsTextArea");
+		textArea.setEditable(false);
+		JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setName("ScrollPane");
+		scrollPane.setSize(400, 400);
+		this.resultsPanel.add(scrollPane);
+
+		this.getContentPane().add(this.buildToolBar(configuration), BorderLayout.NORTH);
 		this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		this.pack();
 		this.setVisible(true);
 
 	}
+
 
 	/**
 	 * Build the toolbar.
@@ -188,7 +213,6 @@ public class App extends JFrame {
 	private JToolBar buildToolBar(final Configuration configuration) {
 		JToolBar tb = new JToolBar();
 		tb.setName("UtilitiesToolBar");
-//      tb.setLayout(new BorderLayout());
 
 		for (String operationName : configuration.getOperationNames()) {
 			EventListener listener = null;
@@ -199,28 +223,16 @@ public class App extends JFrame {
 				listener = this.invokeListener(configuration.getOperationListener(operationName));
 				b.setName(operationName);
 				b.addActionListener((ActionListener) listener);
-			} catch (ClassNotFoundException e1) {
-				// TODO Auto-generated catch block
+				tb.add(b);
+				tb.addSeparator();
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e1) {
+				// TODO Check all these Exceptions.  Are some subclasses of others?  Can These Exceptions be consolidated?
+				// If keep use of reflection, might be nice to have some type of application alert manager.
 				e1.printStackTrace();
-				b.setEnabled(false);
-			} catch (InstantiationException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				b.setEnabled(false);
-			} catch (IllegalAccessException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				b.setEnabled(false);
-			} catch (IllegalArgumentException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				b.setEnabled(false);
 			}
-
-			tb.add(b);
-			tb.addSeparator();
 		}
 		JButton cancel = new JButton("Cancel");
+		cancel.setEnabled(false);
 		tb.add(cancel);
 
 		tb.add(Box.createHorizontalGlue());
@@ -234,10 +246,42 @@ public class App extends JFrame {
 		return tb;
 	}
 
-	private EventListener invokeListener(String operationListener)
-			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+//	private EventListener invokeListener(final String operationListener)
+//			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+////		Class<?> clazz = Class.forName(operationListener);
+////		EventListener listener = (EventListener) clazz.newInstance();
+//		Class<?> clazz;
+//		EventListener listener = null;
+//
+//		if (operationListener.contains("PrettyPrintListener")) {
+//			Class<org.fgb.fileOperations.xml.listeners.PrettyPrintListener> el = org.fgb.fileOperations.xml.listeners.PrettyPrintListener.class;
+//			try {
+//				listener = el.getConstructor(JPanel.class).newInstance(this.resultsPanel);
+//			} catch (IllegalArgumentException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (InvocationTargetException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (NoSuchMethodException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (SecurityException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		} else {
+//			clazz = Class.forName(operationListener);
+//			listener = (EventListener) clazz.newInstance();
+//		}
+//		return listener;
+//	}
+
+
+	private EventListener invokeListener(final String operationListener) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Class<?> clazz = Class.forName(operationListener);
-		EventListener listener = (EventListener) clazz.newInstance();
+		Constructor<?> c = clazz.getConstructor(JPanel.class);
+		EventListener listener = (EventListener) c.newInstance(this.resultsPanel);
 		return listener;
 	}
 
