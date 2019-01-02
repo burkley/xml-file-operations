@@ -13,59 +13,88 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-
 public class ValidateListener implements ActionListener {
-    /**
-     * The name of this class.
-     */
-    private static final String _className = ValidateListener.class.getName();
-    /**
-     * JDK logger.
-     */
-    private static final Logger _logger = Logger.getLogger(_className);
-    /**
-     * Keep a list of the currently selected files from the <code>JFileChooser</code>.
-     */
-    private List<File> selectedFiles = new ArrayList<File>();
+	/**
+	 * The name of this class.
+	 */
+	private static final String _className = ValidateListener.class.getName();
+	/**
+	 * JDK logger.
+	 */
+	private static final Logger _logger = Logger.getLogger(_className);
+	/**
+	 * Keep a list of the currently selected files from the
+	 * <code>JFileChooser</code>.
+	 */
+	private List<File> selectedFiles = new ArrayList<File>();
+	/**
+	 * There is a single <i>results panel</i> for the application. This is the panel
+	 * where results of the various <i>work flows</i> will be published. The
+	 * reference to this panel is passed to this class as an argument to the
+	 * Constructor.
+	 */
+	private JComponent resultsPanel = new JPanel();
 
-    public void actionPerformed(ActionEvent event) {
-	JButton button;
-	System.out.println(_className + ".actionPerformed(): event = " + event);
-	System.out.println(_className + ".actionPerformed(): event.getSource().getClass().getName() = " + event.getSource().getClass().getName());
-	if (event.getSource() instanceof JButton) {
-	    button = (JButton)event.getSource();
-	    Container topLevel = button.getTopLevelAncestor();
-	    System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName() + "  getClass().getName() = " + topLevel.getClass().getName());
-	    System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName());
-	    System.out.println(_className + ".actionPerformed(): (topLevel instanceof JFrame) = " + (topLevel instanceof JFrame ? true : false));
-	    if (topLevel instanceof JFrame) {
-		JFrame jframe = (JFrame)topLevel;
-//		jframe.getContentPane().getComponents();
-		for (Component c1 : jframe.getContentPane().getComponents()) {
-		    System.out.println(_className + ".actionPerformed(): component.getName() = " + c1.getName() + "  getClass().getName() = " + c1.getClass().getName());
-		    if (c1 instanceof JTabbedPane) {
-			JTabbedPane jtabbedPane = (JTabbedPane)c1;
-			for (Component c2 : jtabbedPane.getComponents()) {
-			    System.out.println(_className + ".actionPerformed():   component.getName() = " + c2.getName() + "  getClass().getName() = " + c2.getClass().getName());
-			    if (c2 instanceof JFileChooser) {
-				JFileChooser chooser = (JFileChooser)c2;
-			    } else if (c2 instanceof JPanel) {
-				JPanel panel = (JPanel)c2;
-				jtabbedPane.setSelectedComponent(panel);
-			    }
-			    
-			}
-		    }
-		}
-	    }
+	/**
+	 * 
+	 */
+	public ValidateListener() {
+		System.out.println(_className + ".ValidateListener()...");
 	}
-	
-    }
+
+	/**
+	 * 
+	 */
+	public ValidateListener(final JPanel panel) {
+		this();
+		System.out.println(_className + ".ValidateListener(JPanel j)...");
+		this.resultsPanel = panel;
+	}
+
+	public void actionPerformed(ActionEvent event) {
+		JButton button;
+		System.out.println(_className + ".actionPerformed(): event = " + event);
+		System.out.println(_className + ".actionPerformed(): event.getSource().getClass().getName() = "
+				+ event.getSource().getClass().getName());
+		if (event.getSource() instanceof JButton) {
+			button = (JButton) event.getSource();
+			Container topLevel = button.getTopLevelAncestor();
+			System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName()
+					+ "  getClass().getName() = " + topLevel.getClass().getName());
+			System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName());
+			System.out.println(_className + ".actionPerformed(): (topLevel instanceof JFrame) = "
+					+ (topLevel instanceof JFrame ? true : false));
+			if (topLevel instanceof JFrame) {
+				JFrame jframe = (JFrame) topLevel;
+//		jframe.getContentPane().getComponents();
+				for (Component c1 : jframe.getContentPane().getComponents()) {
+					System.out.println(_className + ".actionPerformed(): component.getName() = " + c1.getName()
+							+ "  getClass().getName() = " + c1.getClass().getName());
+					if (c1 instanceof JTabbedPane) {
+						JTabbedPane jtabbedPane = (JTabbedPane) c1;
+						for (Component c2 : jtabbedPane.getComponents()) {
+							System.out.println(_className + ".actionPerformed():   component.getName() = "
+									+ c2.getName() + "  getClass().getName() = " + c2.getClass().getName());
+							if (c2 instanceof JFileChooser) {
+								JFileChooser chooser = (JFileChooser) c2;
+							} else if (c2 instanceof JPanel) {
+								JPanel panel = (JPanel) c2;
+								jtabbedPane.setSelectedComponent(panel);
+							}
+
+						}
+					}
+				}
+			}
+		}
+
+	}
 
 //    public void propertyChange(PropertyChangeEvent event) {
 //	this.selectedFiles.clear();
