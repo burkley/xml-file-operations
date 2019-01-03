@@ -18,15 +18,17 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 /**
- * Class <code>DefaultActionListener</code> implements the {@linkplain java.awt.event.ActionListener} interface.  The
- * {@linkplain #actionPerformed(ActionEvent)} method of this class implements behaviors and or functionality required
- * by the major work flows of this application.
+ * Class <code>DefaultActionListener</code> implements the
+ * {@linkplain java.awt.event.ActionListener} interface. The
+ * {@linkplain #actionPerformed(ActionEvent)} method of this class implements
+ * behaviors and or functionality required by the major work flows of this
+ * application.
  * <p>
  * Those major work flows are
  * <ul>
- *   <li>Pretty Print XML Instance Documents</li>
- *   <li>Regression test XML Instance Documents</li>
- *   <li>Validate XML Instance Documents</li>
+ * <li>Pretty Print XML Instance Documents</li>
+ * <li>Regression test XML Instance Documents</li>
+ * <li>Validate XML Instance Documents</li>
  * </ul>
  * 
  * @see org.fgb.fileOperations.xml.listeners.PrettyPrintListener
@@ -36,92 +38,97 @@ import javax.swing.JTabbedPane;
  *
  */
 public class DefaultActionListener implements ActionListener {
-    /**
-     * The name of this class.
-     */
-    private static final String _className = DefaultActionListener.class.getName();
-    /**
-     * JDK logger.
-     */
-    private static final Logger _logger = Logger.getLogger(_className);
-    /**
-     * Keep a list of the currently selected files from the <code>JFileChooser</code>.
-     */
-    private List<File> selectedFiles;
+	/**
+	 * The name of this class.
+	 */
+	private static final String _className = DefaultActionListener.class.getName();
+	/**
+	 * JDK logger.
+	 */
+	private static final Logger _logger = Logger.getLogger(_className);
+	/**
+	 * Keep a list of the currently selected files from the
+	 * <code>JFileChooser</code>.
+	 */
+	private List<File> selectedFiles;
 
+	/**
+	 * Default Constructor.
+	 */
+	public DefaultActionListener() {
+		this.selectedFiles = new ArrayList<File>();
+	}
 
-    /**
-     * Default Constructor.
-     */
-    public DefaultActionListener() {
-	this.selectedFiles = new ArrayList<File>();
-    }
-
-
-    /**
-     * This method implements behaviors and or functionality required by the major work flows of this application as follows:
-     * <ul>
-     *   <li>Gets the list of files that are currently selected via the <code>JFileChooser</code>.  This list of files is subsequently available via the {@linkplain #getSelectedFiles()} method.</li>
-     *   <li>Switches the focus of the user interface to the "Results" JPanel.</li>
-     * </ul>
-     */
-    public void actionPerformed(ActionEvent event) {
-	StringBuilder msg = new StringBuilder("Unable to retrieve the list of files that may have been selected by the user.");
-	System.out.println(_className + ".actionPerformed(): event = " + event);
-	System.out.println(_className + ".actionPerformed(): event.getSource().getClass().getName() = " + event.getSource().getClass().getName());
-	if (event.getSource() instanceof JButton) {
-	    JButton button = (JButton)event.getSource();
-	    Container topLevel = button.getTopLevelAncestor();
-	    System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName() + "  getClass().getName() = " + topLevel.getClass().getName());
-	    System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName());
-	    System.out.println(_className + ".actionPerformed(): (topLevel instanceof JFrame) = " + (topLevel instanceof JFrame ? true : false));
-	    if (topLevel instanceof JFrame) {
-		JFrame jframe = (JFrame)topLevel;
-		for (Component c1 : jframe.getContentPane().getComponents()) {
+	/**
+	 * This method implements behaviors and or functionality required by the major
+	 * work flows of this application as follows:
+	 * <ul>
+	 * <li>Gets the list of files that are currently selected via the
+	 * <code>JFileChooser</code>. This list of files is subsequently available via
+	 * the {@linkplain #getSelectedFiles()} method.</li>
+	 * <li>Switches the focus of the user interface to the "Results" JPanel.</li>
+	 * </ul>
+	 */
+	public void actionPerformed(ActionEvent event) {
+		StringBuilder msg = new StringBuilder(
+				"Unable to retrieve the list of files that may have been selected by the user.");
+		System.out.println(_className + ".actionPerformed(): event = " + event);
+		System.out.println(_className + ".actionPerformed(): event.getSource().getClass().getName() = "
+				+ event.getSource().getClass().getName());
+		if (event.getSource() instanceof JButton) {
+			JButton button = (JButton) event.getSource();
+			Container topLevel = button.getTopLevelAncestor();
+			System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName()
+					+ "  getClass().getName() = " + topLevel.getClass().getName());
+			System.out.println(_className + ".actionPerformed(): topLevel.getName() = " + topLevel.getName());
+			System.out.println(_className + ".actionPerformed(): (topLevel instanceof JFrame) = "
+					+ (topLevel instanceof JFrame ? true : false));
+			if (topLevel instanceof JFrame) {
+				JFrame jframe = (JFrame) topLevel;
+				for (Component c1 : jframe.getContentPane().getComponents()) {
 //		    System.out.println(_className + ".actionPerformed(): component.getName() = " + c1.getName() + "  getClass().getName() = " + c1.getClass().getName());
-		    if (c1 instanceof JTabbedPane) {
-			JTabbedPane jtabbedPane = (JTabbedPane)c1;
-			for (Component c2 : jtabbedPane.getComponents()) {
+					if (c1 instanceof JTabbedPane) {
+						JTabbedPane jtabbedPane = (JTabbedPane) c1;
+						for (Component c2 : jtabbedPane.getComponents()) {
 //			    System.out.println(_className + ".actionPerformed():   component.getName() = " + c2.getName() + "  getClass().getName() = " + c2.getClass().getName());
-			    if (c2 instanceof JFileChooser) {
-				JFileChooser chooser = (JFileChooser)c2;
-				for (PropertyChangeListener l : chooser.getPropertyChangeListeners()) {
+							if (c2 instanceof JFileChooser) {
+								JFileChooser chooser = (JFileChooser) c2;
+								for (PropertyChangeListener l : chooser.getPropertyChangeListeners()) {
 //				    System.out.println(_className + ".actionPerformed(): PCL = " + l.getClass().getName());
-				    if (l instanceof FileSelectionPropertyChangeListener) {
-					FileSelectionPropertyChangeListener fspcl = (FileSelectionPropertyChangeListener)l;
-					this.selectedFiles = fspcl.getSelectedFiles();
+									if (l instanceof FileSelectionPropertyChangeListener) {
+										FileSelectionPropertyChangeListener fspcl = (FileSelectionPropertyChangeListener) l;
+										this.selectedFiles = fspcl.getSelectedFiles();
 //					for (File file : this.selectedFiles) {
 //					    System.out.println(_className + ".actionPerformed(): Selected File = " + file.getAbsolutePath());
 //					}
-				    }
+									}
+								}
+							} else if (c2 instanceof JPanel) {
+								JPanel panel = (JPanel) c2;
+								jtabbedPane.setSelectedComponent(panel);
+							}
+						}
+					}
 				}
-			    } else if (c2 instanceof JPanel) {
-				JPanel panel = (JPanel)c2;
-				jtabbedPane.setSelectedComponent(panel);
-			    }
+			} else {
+
 			}
-		    }
+		} else {
+			if (_logger.isLoggable(Level.WARNING)) {
+				msg.append("  Received an ActionEvent, anticipating the source of the event to be a JButton.");
+				msg.append("  However the source is ");
+				msg.append(event.getSource());
+				_logger.warning(msg.toString());
+				msg.delete(0, msg.length());
+			}
 		}
-	    } else {
-		
-	    }
-	} else {
-	    if (_logger.isLoggable(Level.WARNING)) {
-		msg.append("  Received an ActionEvent, anticipating the source of the event to be a JButton.");
-		msg.append("  However the source is ");
-		msg.append(event.getSource());
-		_logger.warning(msg.toString());
-		msg.delete(0, msg.length());
-	    }
 	}
-    }
 
-
-    /**
-     * 
-     * @return
-     */
-    public List<File> getSelectedFiles() {
-	return new ArrayList<File>(this.selectedFiles);
-    }
+	/**
+	 * 
+	 * @return
+	 */
+	public List<File> getSelectedFiles() {
+		return new ArrayList<File>(this.selectedFiles);
+	}
 }
