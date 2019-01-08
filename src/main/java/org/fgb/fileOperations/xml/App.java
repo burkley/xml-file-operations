@@ -48,6 +48,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.fgb.fileOperations.xml.listeners.FileSelectionPropertyChangeListener;
 import org.fgb.fileOperations.xml.utilities.Configuration;
+import org.fgb.fileOperations.xml.workers.PrettyPrintWorker;
 
 /**
  * Application "XML File Operations". This application renders a Graphical User
@@ -93,6 +94,10 @@ public class App extends JFrame {
 	 * of the work flows.
 	 */
 	private final JComponent resultsPanel = new JPanel();
+	/**
+	 * 
+	 */
+	PrettyPrintWorker prettyPrintWorker;
 
 	/**
 	 * Default Constructor.
@@ -197,11 +202,21 @@ public class App extends JFrame {
 		scrollPane.setSize(400, 400);
 		this.resultsPanel.add(scrollPane);
 
+		
+		
+		this.prettyPrintWorker = new PrettyPrintWorker(this.resultsPanel);
+		
+		
+		
+		
+		
+		
+		
+		
 		this.getContentPane().add(this.buildToolBar(configuration), BorderLayout.NORTH);
 		this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		this.pack();
 		this.setVisible(true);
-
 	}
 
 
