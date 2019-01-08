@@ -23,7 +23,7 @@ TODOs
 Swing Worker notes
 
 Can wait for SwingWorker to complete using the get() methods.
-Call publish() from the doInBackground() nmethod.
+Call publish() from the doInBackground() method.
 	Because the process method is invoked asynchronously on the
 	Event Dispatch Thread multiple invocations to the publish method
 	might occur before the process method is executed. For performance
@@ -32,6 +32,37 @@ Call publish() from the doInBackground() nmethod.
 
 
 App.java
+
+Setup:
+	Three workflows, PrettyPrint, Validate, Regresstion.  Each workflow has an associated
+	SwingWorker.
+
+	Create a single action listener within the App class.  Register the action listener
+	with each of the workflow buttons.
+	Upon button click:
+	The action listener 1) Sets the 3 workflow buttons to inactive, 2) Activates the cancel
+	button, 3) Invoke execute() on the appropriate SwingWorker, 4) Changes the tabbed pane
+	from FileChooser to Results. 
+
+	SwingWorkers
+	Each SwingWorker will have some common responsibilities.
+	Common Responsibilities:
+	Add the App class as a property change listerer (or make an internal class to App).  The property
+	change listener can look for StateValue.DONE alerts from the appropriate worker (I think).
+	Upon receipt: 1) Sets the 3 workflow buttons to active, 2) Deactivates the cancel
+	button.  (I think that is it, i.e. leave the results panel as is so user can see results of workflow.
+	
+	
+	task = new Task();
+        task.addPropertyChangeListener(this);
+        task.execute();
+
+	Three SwingWorkers, PrettyPrintSwingWorker, ValidateSwingWorker, RegressionSwingWorker.
+	Each SwingWorker can have an ActionListener to hook it up with the appropriate button.
+	Create a single action listener within the App class.  Responsibilities: 1) Set the 3
+	workflow buttons to inactive.  Activate the cancel button.  
+
+
 Invoke a SwingWorker via one of the workflows (i.e. clicking on Validate, PrettyPrint or RegressionTest).
 When clicked:
 	TabbedPane switches from FileChooser to Results
@@ -39,12 +70,9 @@ When clicked:
 	The cancel button becomes active.
 	
 	The SwingWorker begins to execute.  While executing:
-		Status is published (via the publish() method) while doInBackground() is execuring.
+		Status is published (via the publish() method) while doInBackground() is executing.
 		Done will be called automatically when doInBackground() returns.
-		
-	Three SwingWorkers, PrettyPrintSwingWorker, ValidateSwingWorker, RegressionSwingWorker.
-	Each SwingWorker can have an ActionListener to hook it up with the appropriate button.
-	
+			
 	How to control state between App and the currently executing SwingWorker?
 	
 	
