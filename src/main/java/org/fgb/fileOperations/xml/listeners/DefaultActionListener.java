@@ -70,6 +70,9 @@ public class DefaultActionListener implements ActionListener {
 	 * </ul>
 	 */
 	public void actionPerformed(ActionEvent event) {
+		//
+		// TODO: This is kind of ugly.  Possible to re-factor using my SwingUtils?  Should check for names at a minimum.
+		//
 		StringBuilder msg = new StringBuilder(
 				"Unable to retrieve the list of files that may have been selected by the user.");
 		System.out.println(_className + ".actionPerformed(): event = " + event);
