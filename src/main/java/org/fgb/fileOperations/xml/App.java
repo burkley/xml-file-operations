@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -112,11 +111,12 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 	 * progress (or not).
 	 */
 	private final List<JButton> workflowInvocationButtons;
-	
 	/**
-	 * 
+	 * The {@linkplain javax.swing.SwingWorker} is initialized to a particular <i>work flow</i> when the
+	 * user invokes one of the application <i>work flow</i>s.
 	 */
 	SwingWorker<String, String> workflowWorker;
+
 
 	/**
 	 * Default Constructor.
@@ -398,8 +398,9 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 				for (ActionListener l : App.this.cancelButton.getActionListeners()) {
 					App.this.cancelButton.removeActionListener(l);
 				}
-				this.workflowWorker = null;
 				this.toggleButtons(true);
+				this.workflowWorker.removePropertyChangeListener(this);
+				this.workflowWorker = null;
 			} else if (SwingWorker.StateValue.PENDING == newStateValue) {
 				System.out.println(_className + ".propertyChange(): new state value is PENDING");
 			} else if (SwingWorker.StateValue.STARTED == newStateValue) {
