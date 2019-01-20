@@ -12,7 +12,6 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import org.fgb.fileOperations.xml.listeners.DefaultActionListener;
 import org.fgb.fileOperations.xml.utilities.SwingUtils;
 
 /**
