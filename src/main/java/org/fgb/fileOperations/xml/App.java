@@ -3,20 +3,20 @@ package org.fgb.fileOperations.xml;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.EventListener;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,9 +26,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -36,9 +33,9 @@ import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -49,6 +46,8 @@ import org.apache.commons.cli.ParseException;
 import org.fgb.fileOperations.xml.listeners.FileSelectionPropertyChangeListener;
 import org.fgb.fileOperations.xml.utilities.Configuration;
 import org.fgb.fileOperations.xml.workers.PrettyPrintWorker;
+import org.fgb.fileOperations.xml.workers.RegressionTestWorker;
+import org.fgb.fileOperations.xml.workers.ValidateWorker;
 
 /**
  * Application "XML File Operations". This application renders a Graphical User
@@ -64,7 +63,7 @@ import org.fgb.fileOperations.xml.workers.PrettyPrintWorker;
  *
  * @author FrederickBurkley
  */
-public class App extends JFrame {
+public class App extends JFrame implements ActionListener, PropertyChangeListener {
 	/**
 	 * Default serial version UID.
 	 */
@@ -85,7 +84,7 @@ public class App extends JFrame {
 	 * made available to the various {@linkplain java.awt.event.ActionListener}s
 	 * that invoke the major work flows of this application.
 	 */
-	private FileSelectionPropertyChangeListener fileSelectionPCL;
+	private FileSelectionPropertyChangeListener fileSelectionListener;
 
 	/**
 	 * There is a single <i>results panel</i> for the application.  This is the panel
@@ -94,16 +93,29 @@ public class App extends JFrame {
 	 * of the work flows.
 	 */
 	private final JComponent resultsPanel = new JPanel();
+	private final JButton cancelButton;
+	private final List<JButton> buttonList;
+	
+//	private final AppActionListener globalActionListener;
+//	private final AppPropertyChangeListener globalPropertyChangeListener;
+
+
 	/**
 	 * 
 	 */
-	PrettyPrintWorker prettyPrintWorker;
+	SwingWorker<String, String> workflowWorker;
 
 	/**
 	 * Default Constructor.
 	 */
 	public App() {
 		super();
+
+//		this.globalActionListener = new AppActionListener();
+//		this.globalPropertyChangeListener = new AppPropertyChangeListener();
+
+		this.cancelButton = new JButton("Cancel");
+		this.buttonList = new ArrayList<JButton>();
 
 		// add shutdown hook
 		final ShutdownHook shutdownHook = new ShutdownHook();
@@ -180,8 +192,8 @@ public class App extends JFrame {
 				msg.delete(0, msg.length());
 			}
 		}
-		this.fileSelectionPCL = new FileSelectionPropertyChangeListener();
-		fileChooser.addPropertyChangeListener(this.fileSelectionPCL);
+		this.fileSelectionListener = new FileSelectionPropertyChangeListener();
+		fileChooser.addPropertyChangeListener(this.fileSelectionListener);
 		MouseListener[] mls = (MouseListener[]) (fileChooser.getListeners(MouseListener.class));
 		for (int i = 0; i < mls.length; i++) {
 			System.out.println(_className + ".buildFrame(): " + mls[i].getClass().getName());
@@ -203,8 +215,6 @@ public class App extends JFrame {
 		this.resultsPanel.add(scrollPane);
 
 		
-		
-		this.prettyPrintWorker = new PrettyPrintWorker(this.resultsPanel);
 		
 		
 		
@@ -240,15 +250,16 @@ public class App extends JFrame {
 				b.addActionListener((ActionListener) listener);
 				tb.add(b);
 				tb.addSeparator();
+				this.buttonList.add(b);
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e1) {
 				// TODO Check all these Exceptions.  Are some subclasses of others?  Can These Exceptions be consolidated?
 				// If keep use of reflection, might be nice to have some type of application alert manager.
 				e1.printStackTrace();
 			}
+			b.addActionListener(this);
 		}
-		JButton cancel = new JButton("Cancel");
-		cancel.setEnabled(false);
-		tb.add(cancel);
+		this.cancelButton.setEnabled(false);
+		tb.add(this.cancelButton);
 
 		tb.add(Box.createHorizontalGlue());
 		JButton quit = new JButton("Quit");
@@ -332,7 +343,7 @@ public class App extends JFrame {
 	 * Prompt user to confirm exit and do so.
 	 */
 	private void quit() {
-		this.removePropertyChangeListener(this.fileSelectionPCL);
+		this.removePropertyChangeListener(this.fileSelectionListener);
 		System.runFinalization();
 		setVisible(false);
 		dispose();
@@ -348,6 +359,73 @@ public class App extends JFrame {
 
 		}
 	}
+
+
+	private void toggleButtons(final boolean enabled) {
+		for (JButton button: App.this.buttonList) {
+			button.setEnabled(enabled);
+		}
+		App.this.cancelButton.setEnabled(!enabled);
+	}
+
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		System.out.println(_className + ".propertyChange(): SwingUtilities.isEventDispatchThread() = " + SwingUtilities.isEventDispatchThread());
+		System.out.println(_className + ".propertyChange(): PropertyName = " + evt.getPropertyName());
+		System.out.println(_className + ".propertyChange(): evt.getOldValue().getClass().getName() = " + evt.getOldValue().getClass().getName() + "  evt.getNewValue().getClass().getName() = " + evt.getNewValue().getClass().getName());
+		System.out.println(_className + ".propertyChange(): evt.getOldValue() = " + evt.getOldValue() + "  evt.getNewValue() = " + evt.getNewValue());
+		if ("state" == evt.getPropertyName()) {
+			SwingWorker.StateValue oldStateValue = (SwingWorker.StateValue) evt.getOldValue();
+			SwingWorker.StateValue newStateValue = (SwingWorker.StateValue) evt.getNewValue();
+			if (SwingWorker.StateValue.DONE == newStateValue) {
+				System.out.println(_className + ".propertyChange(): new state value is DONE");
+				for (ActionListener l : App.this.cancelButton.getActionListeners()) {
+					App.this.cancelButton.removeActionListener(l);
+				}
+				this.workflowWorker = null;
+				this.toggleButtons(true);
+			} else if (SwingWorker.StateValue.PENDING == newStateValue) {
+				System.out.println(_className + ".propertyChange(): new state value is PENDING");
+			} else if (SwingWorker.StateValue.STARTED == newStateValue) {
+				System.out.println(_className + ".propertyChange(): new state value is STARTED");
+				this.cancelButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						App.this.workflowWorker.cancel(false);
+					}
+				});
+				this.toggleButtons(false);
+			} else {
+				System.out.println(_className + ".propertyChange(): WARNING - new state value is " + newStateValue);
+			}
+		} else if ("progress" == evt.getPropertyName()) {
+            int progress = (Integer) evt.getNewValue();
+        }
+		System.out.println();
+	}
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		System.out.println(_className + ".actionPerformed(): " + e.getActionCommand());
+		switch (e.getActionCommand()) {
+		case "Validate":
+			this.workflowWorker = new ValidateWorker(this.resultsPanel, this.fileSelectionListener.getSelectedFiles());
+			break;
+		case "PrettyPrint":
+			this.workflowWorker = new PrettyPrintWorker(this.resultsPanel, this.fileSelectionListener.getSelectedFiles());
+			break;
+		case "RegressionTest":
+			this.workflowWorker = new RegressionTestWorker(this.resultsPanel, this.fileSelectionListener.getSelectedFiles());
+			break;
+		default:
+			break;
+		}
+		this.workflowWorker.addPropertyChangeListener(this);
+		this.workflowWorker.execute();
+	}
+
 
 	/**
 	 * Bootstrap the application.
