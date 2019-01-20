@@ -76,30 +76,43 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 	 * JDK logger.
 	 */
 	private static final Logger _logger = Logger.getLogger(_className);
-
 	/**
 	 * There is a single file selection property change listener for the
 	 * application. This listener will keep track of the files (i.e. a list of
 	 * files) that are currently selected via the JFileCooser. This list of files is
-	 * made available to the various {@linkplain java.awt.event.ActionListener}s
-	 * that invoke the major work flows of this application.
+	 * processed by the various {@linkplain javax.swing.SwingWorker}s that invoke
+	 * the major work flows of this application.
 	 */
 	private FileSelectionPropertyChangeListener fileSelectionListener;
-
 	/**
 	 * There is a single <i>results panel</i> for the application.  This is the panel
 	 * where results of the various <i>work flows</i> will be published.  The reference
-	 * to this panel is passed as an argument to the listeners that control invocation
-	 * of the work flows.
+	 * to this panel is passed as an argument to the various {@linkplain javax.swing.SwingWorker}s
+	 * that invoke the major work flows of this application.
 	 */
-	private final JComponent resultsPanel = new JPanel();
+	private final JPanel workflowResultsPanel = new JPanel();
+	/**
+	 * There is a single tabbed pane that has two tabs:
+	 * <ul>
+	 * <li>A tab that holds a <code>JFileChooser</code></li>
+	 * <li>A tab that holds a <code>JPanel</code> (the <i>workflowResultsPanel</i> as above)</li>
+ 	 * </ul>
+ 	 * <p>
+ 	 * The <i>workflowResultsPanel</i> of the tabbed pane is <i>selected</i> when one of the major workflows
+ 	 * is invoked.
+	 */
+	private JTabbedPane tabbedPane;
+	/**
+	 * The <i>cancelButton</i> cancels a workflow when the workflow is in progress.
+	 */
 	private final JButton cancelButton;
-	private final List<JButton> buttonList;
+	/**
+	 * References to the buttons that invoke the <i>work flows</i>.  A list of buttons is maintained
+	 * so the buttons can be enabled or disabled depending on depending on whether a work flow is in
+	 * progress (or not).
+	 */
+	private final List<JButton> workflowInvocationButtons;
 	
-//	private final AppActionListener globalActionListener;
-//	private final AppPropertyChangeListener globalPropertyChangeListener;
-
-
 	/**
 	 * 
 	 */
@@ -111,11 +124,12 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 	public App() {
 		super();
 
+		_logger.entering(_className, "App");
 //		this.globalActionListener = new AppActionListener();
 //		this.globalPropertyChangeListener = new AppPropertyChangeListener();
 
 		this.cancelButton = new JButton("Cancel");
-		this.buttonList = new ArrayList<JButton>();
+		this.workflowInvocationButtons = new ArrayList<JButton>();
 
 		// add shutdown hook
 		final ShutdownHook shutdownHook = new ShutdownHook();
@@ -127,6 +141,7 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 				quit();
 			}
 		});
+		_logger.exiting(_className, "App");
 	}
 
 	/**
@@ -145,8 +160,8 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		this.getContentPane().setLayout(new BorderLayout());
 //		this.getContentPane().add(this.buildToolBar(configuration), BorderLayout.NORTH);
 
-		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.setName("TabbedPane");
+		this.tabbedPane = new JTabbedPane();
+		this.tabbedPane.setName("TabbedPane");
 
 		Boolean origReadOnlyValue = UIManager.getBoolean("FileChooser.readOnly");
 		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
@@ -198,13 +213,13 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		for (int i = 0; i < mls.length; i++) {
 			System.out.println(_className + ".buildFrame(): " + mls[i].getClass().getName());
 		}
-		tabbedPane.addTab("FileChoser", fileChooser);
+		this.tabbedPane.addTab("FileChoser", fileChooser);
 //	this.disableNewFolderButton(fileChooser);
 
-		this.resultsPanel.setLayout(new BorderLayout());
-		this.resultsPanel.setName("Results");
-		this.resultsPanel.setOpaque(true); // content panes must be opaque
-		tabbedPane.addTab("Results", this.resultsPanel);
+		this.workflowResultsPanel.setLayout(new BorderLayout());
+		this.workflowResultsPanel.setName("Results");
+		this.workflowResultsPanel.setOpaque(true); // content panes must be opaque
+		this.tabbedPane.addTab("Results", this.workflowResultsPanel);
 
 		JTextArea textArea = new JTextArea();
 		textArea.setName("ResultsTextArea");
@@ -212,7 +227,7 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scrollPane.setName("ScrollPane");
 		scrollPane.setSize(400, 400);
-		this.resultsPanel.add(scrollPane);
+		this.workflowResultsPanel.add(scrollPane);
 
 		
 		
@@ -224,7 +239,7 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		
 		
 		this.getContentPane().add(this.buildToolBar(configuration), BorderLayout.NORTH);
-		this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+		this.getContentPane().add(this.tabbedPane, BorderLayout.CENTER);
 		this.pack();
 		this.setVisible(true);
 	}
@@ -240,22 +255,22 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		tb.setName("UtilitiesToolBar");
 
 		for (String operationName : configuration.getOperationNames()) {
-			EventListener listener = null;
+//			EventListener listener = null;
 			JButton b = new JButton(operationName);
 			b.setToolTipText(configuration.getOperationDescription(operationName));
 
-			try {
-				listener = this.invokeListener(configuration.getOperationListener(operationName));
-				b.setName(operationName);
-				b.addActionListener((ActionListener) listener);
+//			try {
+//				listener = this.invokeListener(configuration.getOperationListener(operationName));
+//				b.setName(operationName);
+//				b.addActionListener((ActionListener) listener);
 				tb.add(b);
 				tb.addSeparator();
-				this.buttonList.add(b);
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e1) {
-				// TODO Check all these Exceptions.  Are some subclasses of others?  Can These Exceptions be consolidated?
-				// If keep use of reflection, might be nice to have some type of application alert manager.
-				e1.printStackTrace();
-			}
+				this.workflowInvocationButtons.add(b);
+//			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e1) {
+//				// TODO Check all these Exceptions.  Are some subclasses of others?  Can These Exceptions be consolidated?
+//				// If keep use of reflection, might be nice to have some type of application alert manager.
+//				e1.printStackTrace();
+//			}
 			b.addActionListener(this);
 		}
 		this.cancelButton.setEnabled(false);
@@ -282,7 +297,7 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 //		if (operationListener.contains("PrettyPrintListener")) {
 //			Class<org.fgb.fileOperations.xml.listeners.PrettyPrintListener> el = org.fgb.fileOperations.xml.listeners.PrettyPrintListener.class;
 //			try {
-//				listener = el.getConstructor(JPanel.class).newInstance(this.resultsPanel);
+//				listener = el.getConstructor(JPanel.class).newInstance(this.workflowResultsPanel);
 //			} catch (IllegalArgumentException e) {
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
@@ -307,7 +322,7 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 	private EventListener invokeListener(final String operationListener) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Class<?> clazz = Class.forName(operationListener);
 		Constructor<?> c = clazz.getConstructor(JPanel.class);
-		EventListener listener = (EventListener) c.newInstance(this.resultsPanel);
+		EventListener listener = (EventListener) c.newInstance(this.workflowResultsPanel);
 		return listener;
 	}
 
@@ -362,7 +377,7 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 
 
 	private void toggleButtons(final boolean enabled) {
-		for (JButton button: App.this.buttonList) {
+		for (JButton button: App.this.workflowInvocationButtons) {
 			button.setEnabled(enabled);
 		}
 		App.this.cancelButton.setEnabled(!enabled);
@@ -411,17 +426,20 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		System.out.println(_className + ".actionPerformed(): " + e.getActionCommand());
 		switch (e.getActionCommand()) {
 		case "Validate":
-			this.workflowWorker = new ValidateWorker(this.resultsPanel, this.fileSelectionListener.getSelectedFiles());
+			this.workflowWorker = new ValidateWorker(this.workflowResultsPanel, this.fileSelectionListener.getSelectedFiles());
 			break;
 		case "PrettyPrint":
-			this.workflowWorker = new PrettyPrintWorker(this.resultsPanel, this.fileSelectionListener.getSelectedFiles());
+			this.workflowWorker = new PrettyPrintWorker(this.workflowResultsPanel, this.fileSelectionListener.getSelectedFiles());
 			break;
 		case "RegressionTest":
-			this.workflowWorker = new RegressionTestWorker(this.resultsPanel, this.fileSelectionListener.getSelectedFiles());
+			this.workflowWorker = new RegressionTestWorker(this.workflowResultsPanel, this.fileSelectionListener.getSelectedFiles());
 			break;
 		default:
 			break;
 		}
+		
+		this.tabbedPane.setSelectedComponent(this.workflowResultsPanel);
+		
 		this.workflowWorker.addPropertyChangeListener(this);
 		this.workflowWorker.execute();
 	}
