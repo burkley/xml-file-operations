@@ -125,8 +125,6 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		super();
 
 		_logger.entering(_className, "App");
-//		this.globalActionListener = new AppActionListener();
-//		this.globalPropertyChangeListener = new AppPropertyChangeListener();
 
 		this.cancelButton = new JButton("Cancel");
 		this.workflowInvocationButtons = new ArrayList<JButton>();
@@ -229,15 +227,6 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		scrollPane.setSize(400, 400);
 		this.workflowResultsPanel.add(scrollPane);
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		this.getContentPane().add(this.buildToolBar(configuration), BorderLayout.NORTH);
 		this.getContentPane().add(this.tabbedPane, BorderLayout.CENTER);
 		this.pack();
@@ -319,12 +308,12 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 //	}
 
 
-	private EventListener invokeListener(final String operationListener) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Class<?> clazz = Class.forName(operationListener);
-		Constructor<?> c = clazz.getConstructor(JPanel.class);
-		EventListener listener = (EventListener) c.newInstance(this.workflowResultsPanel);
-		return listener;
-	}
+//	private EventListener invokeListener(final String operationListener) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+//		Class<?> clazz = Class.forName(operationListener);
+//		Constructor<?> c = clazz.getConstructor(JPanel.class);
+//		EventListener listener = (EventListener) c.newInstance(this.workflowResultsPanel);
+//		return listener;
+//	}
 
 
 	/**
@@ -354,6 +343,7 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		}
 	}
 
+
 	/**
 	 * Prompt user to confirm exit and do so.
 	 */
@@ -364,6 +354,7 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 		dispose();
 		System.exit(0);
 	}
+
 
 	/**
 	 * Shutdown hook called by the Virtual Machine at shutdown time.
@@ -386,25 +377,32 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		System.out.println(_className + ".propertyChange(): SwingUtilities.isEventDispatchThread() = " + SwingUtilities.isEventDispatchThread());
-		System.out.println(_className + ".propertyChange(): PropertyName = " + evt.getPropertyName());
-		System.out.println(_className + ".propertyChange(): evt.getOldValue().getClass().getName() = " + evt.getOldValue().getClass().getName() + "  evt.getNewValue().getClass().getName() = " + evt.getNewValue().getClass().getName());
-		System.out.println(_className + ".propertyChange(): evt.getOldValue() = " + evt.getOldValue() + "  evt.getNewValue() = " + evt.getNewValue());
+		StringBuilder msg = new StringBuilder();
+		
+		if (_logger.isLoggable(Level.FINEST)) {
+			msg.append("SwingUtilities.isEventDispatchThread() = ").append(SwingUtilities.isEventDispatchThread());
+			_logger.finest(msg.toString());
+			msg.delete(0, msg.length());
+
+			msg.append("PropertyName = ").append(evt.getPropertyName());
+			_logger.finest(msg.toString());
+			msg.delete(0, msg.length());
+
+			msg.append(".propertyChange(): evt.getOldValue() = ").append(evt.getOldValue());
+			msg.append("  evt.getNewValue() = ").append(evt.getNewValue());
+			_logger.finest(msg.toString());
+			msg.delete(0, msg.length());
+			
+			msg.append("evt.getOldValue().getClass().getName() = ").append(evt.getOldValue().getClass().getName());
+			msg.append("  evt.getNewValue().getClass().getName() = ").append(evt.getNewValue().getClass().getName());
+			_logger.finest(msg.toString());
+			msg.delete(0, msg.length());
+		}
+
 		if ("state" == evt.getPropertyName()) {
-			SwingWorker.StateValue oldStateValue = (SwingWorker.StateValue) evt.getOldValue();
-			SwingWorker.StateValue newStateValue = (SwingWorker.StateValue) evt.getNewValue();
-			if (SwingWorker.StateValue.DONE == newStateValue) {
-				System.out.println(_className + ".propertyChange(): new state value is DONE");
-				for (ActionListener l : App.this.cancelButton.getActionListeners()) {
-					App.this.cancelButton.removeActionListener(l);
-				}
-				this.toggleButtons(true);
-				this.workflowWorker.removePropertyChangeListener(this);
-				this.workflowWorker = null;
-			} else if (SwingWorker.StateValue.PENDING == newStateValue) {
-				System.out.println(_className + ".propertyChange(): new state value is PENDING");
-			} else if (SwingWorker.StateValue.STARTED == newStateValue) {
-				System.out.println(_className + ".propertyChange(): new state value is STARTED");
+			switch ((SwingWorker.StateValue) evt.getNewValue()) {
+			case STARTED:
+				_logger.fine("New state value is STARTED");
 				this.cancelButton.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -412,13 +410,30 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 					}
 				});
 				this.toggleButtons(false);
-			} else {
-				System.out.println(_className + ".propertyChange(): WARNING - new state value is " + newStateValue);
+				break;
+			case PENDING:
+				_logger.fine("New state value is PENDING");
+				break;
+			case DONE:
+				if (_logger.isLoggable(Level.FINE)) {
+					msg.append("New state value is DONE");
+					_logger.fine(msg.toString());
+					msg.delete(0, msg.length());
+				}
+				for (ActionListener l : App.this.cancelButton.getActionListeners()) {
+					App.this.cancelButton.removeActionListener(l);
+				}
+				this.toggleButtons(true);
+				this.workflowWorker.removePropertyChangeListener(this);
+				this.workflowWorker = null;
+				break;
+			default:
+				// We should not be here
+				break;
 			}
 		} else if ("progress" == evt.getPropertyName()) {
             int progress = (Integer) evt.getNewValue();
-        }
-		System.out.println();
+		}
 	}
 
 
