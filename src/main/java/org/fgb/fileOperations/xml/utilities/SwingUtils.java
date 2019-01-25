@@ -2,13 +2,13 @@ package org.fgb.fileOperations.xml.utilities;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 
-import org.fgb.fileOperations.xml.listeners.PrettyPrintListener;
 
 /**
  * Class <code>SwingUtils</code> is a convenience class with some useful swing utilities.
@@ -19,7 +19,7 @@ public class SwingUtils {
 	/**
 	 * The name of this class.
 	 */
-	private static final String _className = PrettyPrintListener.class.getName();
+	private static final String _className = SwingUtils.class.getName();
 	/**
 	 * JDK logger.
 	 */
@@ -47,31 +47,35 @@ public class SwingUtils {
 	 * @return The <code>Component</code> whose name matches the input argument <code>name</code>, else <code>null</code>.
 	 */
 	public static Component findComponentByName(Container container, String name) {
-		System.out.println(_className + ".findComponentByName(): ENTER...");
-		System.out.println(_className + ".findComponentByName(): container.getName() = " + container.getName() + " container.getClass().getName() = " + container.getClass().getName());
+		Component ret = null;
+
+		if (_logger.isLoggable(Level.FINER)) { 
+			_logger.entering(_className, "findComponentByName");
+		}
+
+//		System.out.println(_className + ".findComponentByName(): container.getName() = " + container.getName() + " container.getClass().getName() = " + container.getClass().getName());
 
 		for (Component component : container.getComponents()) {
-			System.out.println(_className + ".findComponentByName(): component.getName() = " + component.getName() + " component.getClass().getName() = " + component.getClass().getName());
+//			System.out.println(_className + ".findComponentByName(): component.getName() = " + component.getName() + " component.getClass().getName() = " + component.getClass().getName());
 			if (name.equals(component.getName())) {
-				return component;
-			}
-			if (component instanceof JRootPane) {
+				ret = component;
+			} else if (component instanceof JRootPane) {
 				// When a JRootPane is found, recurse into it and continue searching.
 				JRootPane nestedJRootPane = (JRootPane) component;
-				return findComponentByName(nestedJRootPane.getContentPane(), name);
-			}
-			if (component instanceof JPanel) {
+				ret = findComponentByName(nestedJRootPane.getContentPane(), name);
+			} else if (component instanceof JPanel) {
 				// JPanel found. Recursing into this panel.
 				JPanel nestedJPanel = (JPanel) component;
-				return findComponentByName(nestedJPanel, name);
-			}
-			if (component instanceof JScrollPane) {
+				ret = findComponentByName(nestedJPanel, name);
+			} else if (component instanceof JScrollPane) {
 				// JPanel found. Recursing into this panel.
 				JScrollPane nestedJScrollPane = (JScrollPane) component;
-				return findComponentByName(nestedJScrollPane.getViewport(), name);
+				ret = findComponentByName(nestedJScrollPane.getViewport(), name);
 			}
-			
 		}
-		return null;
+		if (_logger.isLoggable(Level.FINER)) { 
+			_logger.exiting(_className, "findComponentByName");
+		}
+		return ret;
 	}
 }
