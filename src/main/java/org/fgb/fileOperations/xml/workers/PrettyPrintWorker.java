@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -49,7 +50,13 @@ public class PrettyPrintWorker extends SwingWorker<String, String> {
 	private JTextArea resultsTextArea = null;
 
 	public PrettyPrintWorker(final JComponent panel, List<File> files) {
-		System.out.println(_className + ".PrettyPrintWorker(JPanel j): panel.getName() = " + panel.getName());
+		StringBuilder msg = new StringBuilder();
+
+		if (_logger.isLoggable(Level.FINEST)) {
+			msg.append("Panel.getName() = ").append(panel.getName());
+			_logger.finest(msg.toString());
+			msg.delete(0, msg.length());
+		}
 		this.resultsPanel = panel;
 		Component c;
 		if ((c = SwingUtils.findComponentByName(panel, "ResultsTextArea")) != null) {
@@ -66,13 +73,23 @@ public class PrettyPrintWorker extends SwingWorker<String, String> {
 		int totalSleepTime = 10000;
 		int sleptSoFar = 0;
 		int sleepTime = 1000;
-		System.out.println(this.getClass().getName() + ".doInBackground(): isEventDispatchThread = "
-				+ SwingUtilities.isEventDispatchThread());
+
+		if (_logger.isLoggable(Level.FINEST)) {
+			msg.append("isEventDispatchThread = ").append(SwingUtilities.isEventDispatchThread());
+			_logger.finest(msg.toString());
+			msg.delete(0, msg.length());
+		}
+
 		msg.append("The list of selected files: ");
 		msg.append(this.selectedFiles.toString());
 		msg.append("\n");
 		this.publish(msg.toString());
+
+		if (_logger.isLoggable(Level.INFO)) {
+			_logger.info(msg.toString());
+		}
 		msg.delete(0, msg.length());
+
 		try {
 			while (sleptSoFar < totalSleepTime) {
 				msg.append("Going to sleep for ").append(sleepTime).append(" milliseconds.");
