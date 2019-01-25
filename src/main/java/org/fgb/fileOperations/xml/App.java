@@ -439,7 +439,14 @@ public class App extends JFrame implements ActionListener, PropertyChangeListene
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.println(_className + ".actionPerformed(): " + e.getActionCommand());
+		StringBuilder msg = new StringBuilder();
+
+		if (_logger.isLoggable(Level.FINER)) {
+			msg.append("Action = ").append(e.getActionCommand());
+			_logger.finer(msg.toString());
+			msg.delete(0, msg.length());
+		}
+
 		switch (e.getActionCommand()) {
 		case "Validate":
 			this.workflowWorker = new ValidateWorker(this.workflowResultsPanel, this.fileSelectionListener.getSelectedFiles());
